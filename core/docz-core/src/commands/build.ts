@@ -7,9 +7,10 @@ import { bundler as gatsby } from '../bundler'
 export const build = async (args: Arguments<any>) => {
   const config = await parseConfig(args)
   const bundler = gatsby(config)
+  const app = await bundler.createBuilder()
 
   try {
-    await bundler.build()
+    await app.start()
   } catch (err) {
     logger.error(err)
     process.exit(1)

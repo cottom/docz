@@ -27,7 +27,7 @@ const asyncState = (src: string, onDoneTarget?: string) => ({
   },
 })
 
-const machine = Machine<ServerMachineCtx>({
+const devMachine = Machine<ServerMachineCtx>({
   id: 'devServer',
   type: 'parallel',
   states: {
@@ -60,7 +60,36 @@ const machine = Machine<ServerMachineCtx>({
   },
 })
 
-export const devServerMachine = machine.withConfig({
+const buildStateMachine = Machine<ServerMachineCtx>({
+  id: 'buildMachine',
+
+  initial: 'idle',
+  states: {
+    idle: {
+      on: {
+        START_MACHINE: {
+          actions: ['assignFirstInstall', 'checkIsDoczRepo', 'ensureFiles'],
+          target: 'copyingFiles',
+        },
+      },
+    },
+    copyingFiles: asyncState('copyFiles', 'ensuringDirs'),
+    ensuringDirs: asyncState('ensureDirs', 'creatingResources'),
+    creatingResources: asyncState('createResources', 'installingDeps'),
+    installingDeps: asyncState('installDeps', 'executingCommand'),
+    executingCommand: asyncState('execBuildCommand'),
+    exit: {
+      type: 'final',
+    },
+  },
+})
+
+export const devServerMachine = devMachine.withConfig({
+  services,
+  actions,
+} as any)
+
+export const buildMachine = buildStateMachine.withConfig({
   services,
   actions,
 } as any)

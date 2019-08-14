@@ -5,5 +5,5 @@ import { server } from './server'
 import { build } from './build'
 
 export const bundler = (args: Args) => {
-  return new Bundler({ args, build, server: server(args) })
+  return new Bundler({ args, build: build(args), server: server(args) })
 }

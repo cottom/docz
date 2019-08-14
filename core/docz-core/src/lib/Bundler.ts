@@ -8,7 +8,7 @@ export interface BundlerServer {
   start(): void
 }
 
-export type BuildFn = (dist: string) => void
+export type BuildFn = () => BundlerServer | Promise<BundlerServer>
 export type ServerFn = () => BundlerServer | Promise<BundlerServer>
 
 export interface BundlerConstructor {
@@ -38,7 +38,7 @@ export class Bundler {
     return this.server()
   }
 
-  public async build(): Promise<void> {
+  public async createBuilder(): Promise<BundlerServer> {
     const dist = paths.getDist(this.args.dest)
     const root = paths.getRootDir(this.args)
 
@@ -51,6 +51,6 @@ export class Bundler {
       process.exit(1)
     }
 
-    await this.builder(dist)
+    return this.builder()
   }
 }
